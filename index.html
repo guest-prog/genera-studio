@@ -63,8 +63,10 @@
 
     #home-inner {
       width: 100%;
-      max-width: 700px;
+      max-width: 780px;
       text-align: center;
+      padding: 0 15px;
+      box-sizing: border-box;
     }
 
     #home .studio-name {
@@ -79,11 +81,21 @@
 
     #home .contacts {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 100px;
-      margin-top: 2.2em;
+      gap: 50px;
+      margin-top: 50px;
       line-height: 1.24;
       text-align: left;
+    }
+
+    @media (max-width: 600px) {
+      #home .contacts {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4em;
+        padding: 0 15px;
+      }
     }
 
     #home .contacts a {
@@ -92,7 +104,7 @@
     }
 
     #home .contacts a:hover {
-      text-decoration: underline;
+      color: #aaa;
     }
 
     /* ── SLIDESHOW VIEW ── */
@@ -201,18 +213,12 @@
 <div id="home">
   <div id="home-inner">
     <span class="studio-name">GENERA</span>
-    <p class="bio">is a creative studio that believes new technologies and cross-media practice can create new visual languages.<br>Our creative approach is rooted in cultural sensibility and the idea of "Saper Vedere". Our production is empirical and craft-driven: every project is the result of research, experimentation, and courageous creative decisions. We work with brands across different fields, guiding them through a rapidly changing industry toward the intelligent use of new tools, without losing the cultural coherence that makes communication matter.</p>
+    <p class="bio">is a creative studio that believes new technologies and cross-media practice can create new visual languages. Our creative approach is rooted in cultural sensibility and the idea of "Saper Vedere". Our production is empirical and craft-driven: every project is the result of research, experimentation, and courageous creative decisions. We work with brands across different fields, guiding them through a rapidly changing industry toward the intelligent use of new tools, without losing the cultural coherence that makes communication matter.</p>
     <div class="contacts">
-      <div>
-        <a href="mailto:info@genera.live">info@genera.live</a><br>
-        <a href="tel:+393404921189">+39 3404921189</a><br>
-        <a href="https://instagram.com/genera.live" target="_blank">@genera.live</a>
-      </div>
-      <div>
-        <a href="https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDsyBwgCEAAYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMgYIBRBFGDwyBggGEEUYPDIGCAcQRRg90gEIMTQxOGowajeoAgCwAgA&um=1&ie=UTF-8&fb=1&gl=it&sa=X&geocode=KVEkJgfHw4ZHMceIVTI4GA6A&daddr=Via+Malaga,+4,+20143+Milano+MI" target="_blank">via Malaga, 4<br>
-        20143<br>
-        Milano, MI</a>
-      </div>
+      <a href="https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDsyBwgCEAAYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMgYIBRBFGDwyBggGEEUYPDIGCAcQRRg90gEIMTQxOGowajeoAgCwAgA&um=1&ie=UTF-8&fb=1&gl=it&sa=X&geocode=KVEkJgfHw4ZHMceIVTI4GA6A&daddr=Via+Malaga,+4,+20143+Milano+MI" target="_blank">via Malaga 4, 20143, Milano</a>
+      <a href="mailto:info@genera.live">info@genera.live</a>
+      <a href="https://instagram.com/genera.live" target="_blank">@genera.live</a>
+      <a href="tel:+393404921189">+39 3404921189</a>
     </div>
   </div>
 </div>
