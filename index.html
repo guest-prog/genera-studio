@@ -96,7 +96,7 @@
       position: fixed;
       inset: 0;
       z-index: 5;
-      background: #000;
+      background: #fff;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.6s ease;
@@ -111,7 +111,6 @@
       position: absolute;
       inset: 0;
       opacity: 0;
-      transition: opacity 0.8s ease;
     }
 
     .slide.active {
@@ -279,7 +278,7 @@
   let mode = 'home';
   let currentIndex = -1;
   let timer = null;
-  const INTERVAL = 3000;
+  const INTERVAL = 1000;
 
   // ── SLIDE DISPLAY: solo 1 img nel DOM alla volta + preload prossima ────────
   let currentSlide = null;
@@ -297,27 +296,34 @@
 
   function showSlide(index) {
     const incoming = createSlide(index);
+    // tienila invisibile finché l'immagine non è caricata
+    incoming.style.opacity = '0';
+    slideshow.appendChild(incoming);
 
-    // attiva dopo un frame per triggerare la transizione CSS
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        incoming.classList.add('active');
-      });
-    });
+    const img = incoming.querySelector('img');
 
-    // rimuovi la slide precedente dopo la transizione
-    if (currentSlide) {
-      const old = currentSlide;
-      setTimeout(() => old.remove(), 900);
+    const reveal = () => {
+      // rendi visibile la nuova e rimuovi la vecchia istantaneamente
+      incoming.style.opacity = '1';
+      incoming.classList.add('active');
+      if (currentSlide) {
+        currentSlide.remove();
+      }
+      currentSlide = incoming;
+      currentIndex = index;
+
+      // precarica la prossima
+      const preloadIdx = queue[queuePos] !== undefined ? queue[queuePos] : queue[0];
+      const preImg = new Image();
+      preImg.src = projects[preloadIdx].src;
+    };
+
+    if (img.complete && img.naturalWidth > 0) {
+      reveal();
+    } else {
+      img.onload = reveal;
+      img.onerror = reveal; // mostra comunque anche se errore
     }
-
-    currentSlide = incoming;
-    currentIndex = index;
-
-    // precarica la prossima
-    const preloadIndex = queue[queuePos] !== undefined ? queue[queuePos] : queue[0];
-    const preImg = new Image();
-    preImg.src = projects[preloadIndex].src;
   }
 
   // ── START SLIDESHOW ───────────────────────────────────────────────────────
