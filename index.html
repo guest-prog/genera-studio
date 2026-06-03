@@ -312,10 +312,12 @@
       currentSlide = incoming;
       currentIndex = index;
 
-      // precarica la prossima
-      const preloadIdx = queue[queuePos] !== undefined ? queue[queuePos] : queue[0];
-      const preImg = new Image();
-      preImg.src = projects[preloadIdx].src;
+      // precarica le prossime 5
+      for (let k = 0; k < 5; k++) {
+        const preloadIdx = queue[queuePos + k] !== undefined ? queue[queuePos + k] : queue[k] ?? 0;
+        const preImg = new Image();
+        preImg.src = projects[preloadIdx].src;
+      }
     };
 
     if (img.complete && img.naturalWidth > 0) {
@@ -331,6 +333,12 @@
     mode = 'slideshow';
     home.classList.add('hidden');
     slideshow.classList.add('visible');
+
+    // precarica subito le prime 10 della coda
+    for (let k = 0; k < Math.min(10, queue.length); k++) {
+      const preImg = new Image();
+      preImg.src = projects[queue[k]].src;
+    }
 
     showSlide(nextIndex());
 
