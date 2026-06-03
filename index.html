@@ -232,12 +232,9 @@
 
 <script>
   // ── DATA ──────────────────────────────────────────────────────────────────
-  // Aggiorna projectData con titolo e descrizione per ogni numero di immagine.
-  // Le immagini senza entry usano titolo e desc vuoti (nessun testo in overlay).
   const projectData = {
     // esempio:
     // 1:  { title: 'Cliente, Titolo, 2024', desc: 'is a project about...' },
-    // 12: { title: 'Cliente, Titolo, 2023', desc: 'is a project about...' },
   };
 
   const projects = Array.from({ length: 228 }, (_, i) => {
@@ -250,6 +247,27 @@
     };
   });
 
+  // ── SHUFFLE: genera sequenza random senza ripetizioni consecutive ──────────
+  function buildQueue() {
+    const arr = Array.from({ length: projects.length }, (_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  let queue = buildQueue();
+  let queuePos = 0;
+
+  function nextIndex() {
+    if (queuePos >= queue.length) {
+      queue = buildQueue();
+      queuePos = 0;
+    }
+    return queue[queuePos++];
+  }
+
   // ── STATE ─────────────────────────────────────────────────────────────────
   const home        = document.getElementById('home');
   const slideshow   = document.getElementById('slideshow');
@@ -258,56 +276,60 @@
   const piTitle     = document.getElementById('pi-title');
   const piDesc      = document.getElementById('pi-desc');
 
-  let mode = 'home'; // 'home' | 'slideshow' | 'paused'
+  let mode = 'home';
   let currentIndex = -1;
-  let slides = [];
   let timer = null;
-  const INTERVAL = 3000; // ms between auto-advances
+  const INTERVAL = 3000;
 
-  // ── BUILD SLIDES ──────────────────────────────────────────────────────────
-  function buildSlides() {
-    projects.forEach((p, i) => {
-      const div = document.createElement('div');
-      div.className = 'slide';
-      div.dataset.index = i;
+  // ── SLIDE DISPLAY: solo 1 img nel DOM alla volta + preload prossima ────────
+  let currentSlide = null;
+  let nextSlide = null;
 
-      const img = document.createElement('img');
-      img.src = p.src;
-      img.alt = p.title;
-      div.appendChild(img);
-
-      slideshow.appendChild(div);
-      slides.push(div);
-    });
+  function createSlide(index) {
+    const div = document.createElement('div');
+    div.className = 'slide';
+    const img = document.createElement('img');
+    img.src = projects[index].src;
+    div.appendChild(img);
+    slideshow.appendChild(div);
+    return div;
   }
 
-  // ── SHUFFLE HELPER ────────────────────────────────────────────────────────
-  function randomNext() {
-    if (projects.length === 1) return 0;
-    let n;
-    do { n = Math.floor(Math.random() * projects.length); } while (n === currentIndex);
-    return n;
-  }
-
-  // ── SHOW SLIDE ────────────────────────────────────────────────────────────
   function showSlide(index) {
-    slides.forEach(s => s.classList.remove('active'));
-    slides[index].classList.add('active');
+    const incoming = createSlide(index);
+
+    // attiva dopo un frame per triggerare la transizione CSS
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        incoming.classList.add('active');
+      });
+    });
+
+    // rimuovi la slide precedente dopo la transizione
+    if (currentSlide) {
+      const old = currentSlide;
+      setTimeout(() => old.remove(), 900);
+    }
+
+    currentSlide = incoming;
     currentIndex = index;
+
+    // precarica la prossima
+    const preloadIndex = queue[queuePos] !== undefined ? queue[queuePos] : queue[0];
+    const preImg = new Image();
+    preImg.src = projects[preloadIndex].src;
   }
 
   // ── START SLIDESHOW ───────────────────────────────────────────────────────
   function startSlideshow() {
     mode = 'slideshow';
-
     home.classList.add('hidden');
     slideshow.classList.add('visible');
 
-    const first = randomNext();
-    showSlide(first);
+    showSlide(nextIndex());
 
     timer = setInterval(() => {
-      if (mode === 'slideshow') showSlide(randomNext());
+      if (mode === 'slideshow') showSlide(nextIndex());
     }, INTERVAL);
   }
 
@@ -318,9 +340,6 @@
 
     const p = projects[currentIndex];
     piTitle.textContent = p.title;
-    piDesc.textContent  = 'is a project about ' + p.desc.replace(/^is a project about /, '');
-    // Reassemble as original text structure from screenshot:
-    piTitle.textContent = p.title;
     piDesc.textContent  = p.desc;
 
     wordmark.classList.add('hidden');
@@ -330,12 +349,11 @@
   // ── RESUME SLIDESHOW ──────────────────────────────────────────────────────
   function resumeSlideshow() {
     mode = 'slideshow';
-
     projectInfo.classList.remove('visible');
     wordmark.classList.remove('hidden');
 
     timer = setInterval(() => {
-      if (mode === 'slideshow') showSlide(randomNext());
+      if (mode === 'slideshow') showSlide(nextIndex());
     }, INTERVAL);
   }
 
@@ -348,42 +366,33 @@
     slideshow.classList.remove('visible');
     wordmark.classList.remove('hidden');
     home.classList.remove('hidden');
+
+    // pulisci slide residue
+    if (currentSlide) { currentSlide.remove(); currentSlide = null; }
   }
 
   // ── CLICK HANDLERS ────────────────────────────────────────────────────────
-
-  // Wordmark → go home (only when slideshow is active)
   wordmark.addEventListener('click', (e) => {
     e.stopPropagation();
     if (mode === 'slideshow' || mode === 'paused') goHome();
   });
 
-  // Home area click → start slideshow
-  // (exclude contact links)
   home.addEventListener('click', (e) => {
     if (mode !== 'home') return;
-    if (e.target.tagName === 'A') return; // allow links
+    if (e.target.tagName === 'A') return;
     startSlideshow();
   });
 
-  // Slideshow click → pause & show project info
   slideshow.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (mode === 'slideshow') {
-      pauseOnSlide();
-    } else if (mode === 'paused') {
-      resumeSlideshow();
-    }
+    if (mode === 'slideshow') pauseOnSlide();
+    else if (mode === 'paused') resumeSlideshow();
   });
 
-  // Project info click → resume
   projectInfo.addEventListener('click', (e) => {
     e.stopPropagation();
     if (mode === 'paused') resumeSlideshow();
   });
-
-  // ── INIT ──────────────────────────────────────────────────────────────────
-  buildSlides();
 </script>
 </body>
 </html>
