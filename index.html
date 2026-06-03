@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENERA</title>
+  <style>
+    @font-face {
+      font-family: 'BDO Grotesk';
+      src: url('fonts/BDOGrotesk-Medium.woff2') format('woff2'),
+           url('fonts/BDOGrotesk-Medium.woff') format('woff');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --font: 'BDO Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --size: 9pt;
+      --top: 15px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      color: #1a1a1a;
+      font-family: var(--font);
+      font-size: var(--size);
+      font-weight: 500;
+      letter-spacing: 0;
+      cursor: default;
+      overflow: hidden;
+    }
+
+    /* ── HOME VIEW ── */
+    #home {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: var(--top);
+      transition: opacity 0.6s ease;
+    }
+
+    #home.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #home-inner {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    #home .studio-name {
+      display: block;
+      margin-bottom: 0.6em;
+      letter-spacing: 0;
+    }
+
+    #home .bio {
+      line-height: 1.24;
+    }
+
+    #home .contacts {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      margin-top: 2.2em;
+      line-height: 1.24;
+      text-align: left;
+    }
+
+    #home .contacts a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    #home .contacts a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── SLIDESHOW VIEW ── */
+    #slideshow {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    #slideshow.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── GENERA OVERLAY WORDMARK ── */
+    #wordmark {
+      position: fixed;
+      top: var(--top);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      font-family: var(--font);
+      font-size: var(--size);
+      font-weight: 500;
+      color: #1a1a1a;
+      letter-spacing: 0;
+      cursor: pointer;
+      transition: opacity 0.4s ease;
+      pointer-events: all;
+      white-space: nowrap;
+      mix-blend-mode: difference;
+    }
+
+    #wordmark.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ── PROJECT INFO OVERLAY ── */
+    #project-info {
+      position: fixed;
+      inset: 0;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: var(--top);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      color: #fff;
+      font-family: var(--font);
+      font-size: var(--size);
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.24;
+    }
+
+    #project-info.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #project-info-inner {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    #project-info .project-title {
+      font-weight: 500;
+      letter-spacing: 0;
+      margin-bottom: 0.5em;
+    }
+
+    #project-info .project-desc {
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home">
+  <div id="home-inner">
+    <span class="studio-name">GENERA</span>
+    <p class="bio">is a creative studio that believes new technologies and cross-media practice can create new visual languages.<br>Our creative approach is rooted in cultural sensibility and the idea of "Saper Vedere". Our production is empirical and craft-driven: every project is the result of research, experimentation, and courageous creative decisions. We work with brands across different fields, guiding them through a rapidly changing industry toward the intelligent use of new tools, without losing the cultural coherence that makes communication matter.</p>
+    <div class="contacts">
+      <div>
+        <a href="mailto:info@genera.live">info@genera.live</a><br>
+        <a href="tel:+393404921189">+39 3404921189</a><br>
+        <a href="https://instagram.com/genera.live" target="_blank">@genera.live</a>
+      </div>
+      <div>
+        <a href="https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDsyBwgCEAAYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMgYIBRBFGDwyBggGEEUYPDIGCAcQRRg90gEIMTQxOGowajeoAgCwAgA&um=1&ie=UTF-8&fb=1&gl=it&sa=X&geocode=KVEkJgfHw4ZHMceIVTI4GA6A&daddr=Via+Malaga,+4,+20143+Milano+MI" target="_blank">via Malaga, 4<br>
+        20143<br>
+        Milano, MI</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDESHOW -->
+<div id="slideshow">
+  <!-- slides injected by JS -->
+</div>
+
+<!-- WORDMARK (overlay on slideshow) -->
+<div id="wordmark">GENERA</div>
+
+<!-- PROJECT INFO OVERLAY -->
+<div id="project-info">
+  <div id="project-info-inner">
+    <div class="project-title" id="pi-title"></div>
+    <div class="project-desc" id="pi-desc"></div>
+  </div>
+</div>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────────────
+  // Aggiorna projectData con titolo e descrizione per ogni numero di immagine.
+  // Le immagini senza entry usano titolo e desc vuoti (nessun testo in overlay).
+  const projectData = {
+    // esempio:
+    // 1:  { title: 'Cliente, Titolo, 2024', desc: 'is a project about...' },
+    // 12: { title: 'Cliente, Titolo, 2023', desc: 'is a project about...' },
+  };
+
+  const projects = Array.from({ length: 228 }, (_, i) => {
+    const n = i + 1;
+    const d = projectData[n] || {};
+    return {
+      src:   `images/project-${n}.webp`,
+      title: d.title || '',
+      desc:  d.desc  || ''
+    };
+  });
+
+  // ── STATE ─────────────────────────────────────────────────────────────────
+  const home        = document.getElementById('home');
+  const slideshow   = document.getElementById('slideshow');
+  const wordmark    = document.getElementById('wordmark');
+  const projectInfo = document.getElementById('project-info');
+  const piTitle     = document.getElementById('pi-title');
+  const piDesc      = document.getElementById('pi-desc');
+
+  let mode = 'home'; // 'home' | 'slideshow' | 'paused'
+  let currentIndex = -1;
+  let slides = [];
+  let timer = null;
+  const INTERVAL = 3000; // ms between auto-advances
+
+  // ── BUILD SLIDES ──────────────────────────────────────────────────────────
+  function buildSlides() {
+    projects.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = 'slide';
+      div.dataset.index = i;
+
+      const img = document.createElement('img');
+      img.src = p.src;
+      img.alt = p.title;
+      div.appendChild(img);
+
+      slideshow.appendChild(div);
+      slides.push(div);
+    });
+  }
+
+  // ── SHUFFLE HELPER ────────────────────────────────────────────────────────
+  function randomNext() {
+    if (projects.length === 1) return 0;
+    let n;
+    do { n = Math.floor(Math.random() * projects.length); } while (n === currentIndex);
+    return n;
+  }
+
+  // ── SHOW SLIDE ────────────────────────────────────────────────────────────
+  function showSlide(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    currentIndex = index;
+  }
+
+  // ── START SLIDESHOW ───────────────────────────────────────────────────────
+  function startSlideshow() {
+    mode = 'slideshow';
+
+    home.classList.add('hidden');
+    slideshow.classList.add('visible');
+
+    const first = randomNext();
+    showSlide(first);
+
+    timer = setInterval(() => {
+      if (mode === 'slideshow') showSlide(randomNext());
+    }, INTERVAL);
+  }
+
+  // ── PAUSE / SHOW PROJECT ──────────────────────────────────────────────────
+  function pauseOnSlide() {
+    mode = 'paused';
+    clearInterval(timer);
+
+    const p = projects[currentIndex];
+    piTitle.textContent = p.title;
+    piDesc.textContent  = 'is a project about ' + p.desc.replace(/^is a project about /, '');
+    // Reassemble as original text structure from screenshot:
+    piTitle.textContent = p.title;
+    piDesc.textContent  = p.desc;
+
+    wordmark.classList.add('hidden');
+    projectInfo.classList.add('visible');
+  }
+
+  // ── RESUME SLIDESHOW ──────────────────────────────────────────────────────
+  function resumeSlideshow() {
+    mode = 'slideshow';
+
+    projectInfo.classList.remove('visible');
+    wordmark.classList.remove('hidden');
+
+    timer = setInterval(() => {
+      if (mode === 'slideshow') showSlide(randomNext());
+    }, INTERVAL);
+  }
+
+  // ── GO HOME ───────────────────────────────────────────────────────────────
+  function goHome() {
+    clearInterval(timer);
+    mode = 'home';
+
+    projectInfo.classList.remove('visible');
+    slideshow.classList.remove('visible');
+    wordmark.classList.remove('hidden');
+    home.classList.remove('hidden');
+  }
+
+  // ── CLICK HANDLERS ────────────────────────────────────────────────────────
+
+  // Wordmark → go home (only when slideshow is active)
+  wordmark.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (mode === 'slideshow' || mode === 'paused') goHome();
+  });
+
+  // Home area click → start slideshow
+  // (exclude contact links)
+  home.addEventListener('click', (e) => {
+    if (mode !== 'home') return;
+    if (e.target.tagName === 'A') return; // allow links
+    startSlideshow();
+  });
+
+  // Slideshow click → pause & show project info
+  slideshow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (mode === 'slideshow') {
+      pauseOnSlide();
+    } else if (mode === 'paused') {
+      resumeSlideshow();
+    }
+  });
+
+  // Project info click → resume
+  projectInfo.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (mode === 'paused') resumeSlideshow();
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  buildSlides();
+</script>
+</body>
+</html>
