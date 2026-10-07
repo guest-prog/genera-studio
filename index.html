@@ -30,6 +30,12 @@
       --top: 15px;
     }
 
+    @media (max-width: 768px) {
+      :root {
+        --size: 9pt;
+      }
+    }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -43,16 +49,23 @@
       overflow: hidden;
     }
 
-    /* ── HOME VIEW ── */
+    /* ── HOME LAYOUT ──
+       Il viewport è diviso in 4 zone con padding 15px ovunque:
+       - Bio: da 15px sx fino a metà viewport (~50%)
+       - Services (CREATIVE STUDIO + DIGITAL POWERHOUSE): da metà fino a ~62.5%
+       - Clients: da ~62.5% fino a ~75%
+       - Contacts: da ~75% fino a 15px dx
+
+       GENERA header è centrato nel viewport tramite position absolute,
+       come il wordmark del slideshow.
+    */
+
     #home {
       position: fixed;
       inset: 0;
       background: #fff;
       z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: var(--top);
+      overflow: hidden;
       transition: opacity 0.6s ease;
     }
 
@@ -61,50 +74,111 @@
       pointer-events: none;
     }
 
-    #home-inner {
-      width: 100%;
-      max-width: 780px;
-      text-align: center;
-      padding: 0 15px;
-      box-sizing: border-box;
-    }
-
-    #home .studio-name {
-      display: block;
-      margin-bottom: 0.6em;
+    /* GENERA centrato in alto — stesso stile del wordmark slideshow */
+    #home-wordmark {
+      position: absolute;
+      top: var(--top);
+      left: 50%;
+      transform: translateX(-50%);
       letter-spacing: 0;
+      white-space: nowrap;
+      cursor: pointer;
     }
 
-    #home .bio {
+    /* Bio: 15px sx → 50% viewport (bordo sx di GENERA)
+       Services: 50% → fine, con le 3 colonne destre compatte
+       Usiamo due blocchi assoluti affiancati */
+
+    #home-bio {
+      position: absolute;
+      top: calc(var(--top) + 1.24em + 50px);
+      left: 15px;
+      width: calc(35% - 30px);
       line-height: 1.24;
     }
 
-    #home .contacts {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 50px;
-      margin-top: 50px;
+    #home-bio p {
+      margin-bottom: 1em;
+    }
+    #home-bio p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* griglia 3 colonne compatte a destra, parte da 50% */
+    #home-grid {
+      position: absolute;
+      top: calc(var(--top) + 1.24em + 50px);
+      left: 50%;
+      right: 15px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0 15px;
       line-height: 1.24;
-      text-align: left;
     }
 
-    @media (max-width: 600px) {
-      #home .contacts {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.4em;
-        padding: 0 15px;
-      }
+    #home-services { grid-column: 1; line-height: 1.24; }
+    #home-clients  { grid-column: 2; line-height: 1.24; }
+    #home-contacts { grid-column: 3; line-height: 1.24; }
+
+    .home-col-label {
+      margin-bottom: 1em;
     }
 
-    #home .contacts a {
+    .home-col-section {
+      margin-bottom: 2em;
+    }
+    .home-col-section:last-child {
+      margin-bottom: 0;
+    }
+
+    ul.home-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    ul.home-list li {
+      line-height: 1.24;
+    }
+
+    .home-contacts-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0 12px;
+      line-height: 1.24;
+    }
+
+    #home a {
       color: inherit;
       text-decoration: none;
     }
 
-    #home .contacts a:hover {
+    #home a:hover {
       color: #aaa;
+    }
+
+    @media (max-width: 900px) {
+      #home-bio {
+        position: static;
+        width: auto;
+        padding: calc(var(--top) + 1.24em + 30px) 15px 0;
+      }
+      #home-grid {
+        position: static;
+        padding: 20px 15px 0;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px 15px;
+      }
+      #home-services { grid-column: 1; }
+      #home-clients  { grid-column: 2; }
+      #home-contacts { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 540px) {
+      #home-grid { grid-template-columns: 1fr; }
+      #home-services,
+      #home-clients,
+      #home-contacts { grid-column: 1; }
     }
 
     /* ── SLIDESHOW VIEW ── */
@@ -211,16 +285,81 @@
 
 <!-- HOME -->
 <div id="home">
-  <div id="home-inner">
-    <span class="studio-name">GENERA</span>
-    <p class="bio">is a creative studio that believes new technologies and cross-media practice can create new visual languages. Our creative approach is rooted in cultural sensibility and the idea of "Saper Vedere". Our production is empirical and craft-driven: every project is the result of research, experimentation, and courageous creative decisions. We work with brands across different fields, guiding them through a rapidly changing industry toward the intelligent use of new tools, without losing the cultural coherence that makes communication matter.</p>
-    <div class="contacts">
-      <a href="https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDsyBwgCEAAYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMgYIBRBFGDwyBggGEEUYPDIGCAcQRRg90gEIMTQxOGowajeoAgCwAgA&um=1&ie=UTF-8&fb=1&gl=it&sa=X&geocode=KVEkJgfHw4ZHMceIVTI4GA6A&daddr=Via+Malaga,+4,+20143+Milano+MI" target="_blank">via Malaga 4, 20143, Milano</a>
-      <a href="mailto:info@genera.live">info@genera.live</a>
-      <a href="https://instagram.com/genera.live" target="_blank">@genera.live</a>
-      <a href="tel:+393404921189">+39 3404921189</a>
+  <div id="home-wordmark">GENERA</div>
+
+  <div id="home-bio">
+    <p>Genera is a creative studio that believes new technologies and cross-media practice can create new visual languages.</p>
+    <p>Our creative approach is rooted in cultural sensibility and the idea of "Saper Vedere". Our production is empirical and craft-driven: every project is the result of research, experimentation, and courageous creative decisions.</p>
+    <p>We work with brands across different fields, guiding them through a rapidly changing industry toward the intelligent use of new tools, without losing the cultural coherence that makes communication matter.</p>
+  </div>
+
+  <div id="home-grid">
+    <div id="home-services">
+      <div class="home-col-section">
+        <div class="home-col-label">CREATIVE STUDIO</div>
+        <ul class="home-list">
+          <li>Creative Direction</li>
+          <li>Editorial Direction</li>
+          <li>Brand Architecture</li>
+          <li>Art Direction</li>
+          <li>Visual Identity</li>
+          <li>Campaign</li>
+          <li>Content Production</li>
+        </ul>
+      </div>
+      <div class="home-col-section">
+        <div class="home-col-label">DIGITAL POWERHOUSE</div>
+        <ul class="home-list">
+          <li>AI Production</li>
+          <li>Motion Design</li>
+          <li>3D</li>
+          <li>Photography</li>
+          <li>Video</li>
+          <li>Post Production</li>
+          <li>Web Design</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="home-clients">
+      <div class="home-col-label">SELECTED CLIENTS</div>
+      <ul class="home-list">
+        <li>Ferrari</li>
+        <li>Hoka</li>
+        <li>Mercedes</li>
+        <li>Armani</li>
+        <li>Prada</li>
+        <li>KWAY</li>
+        <li>Unifor</li>
+        <li>Arc'teryx</li>
+        <li>Assos</li>
+        <li>New Balance</li>
+        <li>Oakley</li>
+        <li>Zegna</li>
+        <li>Union bindings</li>
+        <li>The North Face</li>
+        <li>ASSOS</li>
+        <li>Salewa</li>
+        <li>Stone Island</li>
+      </ul>
+    </div>
+
+    <div id="home-contacts">
+      <div class="home-contacts-row">
+        <span class="label">WWW</span>
+        <span><a href="https://genera.live" target="_blank">genera.live</a></span>
+        <span class="label">IG</span>
+        <span><a href="https://instagram.com/genera.live" target="_blank">@genera.live</a></span>
+        <span class="label">T</span>
+        <span><a href="tel:+393404921189">+39 340 4921189</a></span>
+        <span class="label">M</span>
+        <span><a href="mailto:info@genera.live">info@genera.live</a></span>
+        <span class="label">(IT)</span>
+        <span><a href="https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDsyBwgCEAAYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMgYIBRBFGDwyBggGEEUYPDIGCAcQRRg90gEIMTQxOGowajeoAgCwAgA&um=1&ie=UTF-8&fb=1&gl=it&sa=X&geocode=KVEkJgfHw4ZHMceIVTI4GA6A&daddr=Via+Malaga,+4,+20143+Milano+MI" target="_blank">via Malaga 4, 20143 Milano</a></span>
+      </div>
     </div>
   </div>
+
 </div>
 
 <!-- SLIDESHOW -->
