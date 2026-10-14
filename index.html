@@ -172,9 +172,8 @@
     <!-- sempre visibili -->
     <p class="t h-name">GENERA</p>
     <p class="t h-tagline">CREATIVE STUDIO + PRODUCTION HOUSE</p>
-    <p class="t h-year">©2026</p>
-
     <!-- visibili al click -->
+    <p class="t h-year info">©2026</p>
     <p class="t about info">
       Genera is a creative studio reframing contemporary visual languages by combining emerging tools, cross-media practices, and a critical sensitivity to cultural context. Our practice is rooted in “Saper Vedere”: observing beyond the visible to truly uncover the cultural meaning of what one is perceiving. Through research, experimentation, and craft, we translate these insights into visual systems that engage the present and anticipate what comes next. We collaborate across industries, bringing new instruments and critical sensibility to those navigating rapid technological change. Read the change. Frame the vision. Sell the truth.
     </p>
@@ -241,7 +240,7 @@
     </ul>
 
     <!-- logo GENERA, vettoriale (ricostruito 1:1 dal PNG 1402×498) -->
-    <span class="logo" role="img" aria-label="GENERA">
+    <span class="logo info" role="img" aria-label="GENERA">
       <svg viewBox="0 0 1402 498" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
           <mask id="genera-g" maskUnits="userSpaceOnUse" x="0" y="0" width="1402" height="498">
@@ -270,9 +269,9 @@
     pad: 3,                   // 001, 002, 003 …
     ext: ".webp",
     maxImages: 999,           // limite di sicurezza per l'auto-rilevamento
-    interval: 170,            // ms per immagine (≈ 7 al secondo)
+    interval: 200,            // ms per immagine (≈ 7 al secondo)
     reducedMotionInterval: 1200, // per chi ha "riduci movimento" attivo
-    shuffle: false            // true = ordine casuale a ogni visita
+    random: true              // true = ordine casuale (ogni foto esce una volta per giro, mai due uguali di fila)
   };
 
   const stage = document.getElementById("stage");
@@ -312,7 +311,31 @@
     slides[current].classList.add("is-current");
   }
 
-  function tick() { show(current + 1); }
+  /* ---------- ordine casuale ----------
+     "Mazzo" mescolato: si pescano tutte le foto una volta, poi si rimescola.
+     Le foto caricate dopo entrano nel mazzo successivo. */
+  let deck = [];
+
+  function shuffle(arr) {
+    for (let j = arr.length - 1; j > 0; j--) {
+      const r = Math.floor(Math.random() * (j + 1));
+      [arr[j], arr[r]] = [arr[r], arr[j]];
+    }
+    return arr;
+  }
+
+  function nextRandom() {
+    if (!deck.length) {
+      deck = shuffle(slides.map((_, k) => k));
+      // evita la stessa foto due volte di fila a cavallo tra due mazzi
+      if (deck.length > 1 && deck[deck.length - 1] === current) {
+        [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+      }
+    }
+    return deck.pop();
+  }
+
+  function tick() { show(CONFIG.random ? nextRandom() : current + 1); }
 
   function play() {
     if (timer || slides.length < 2) return;
@@ -324,16 +347,20 @@
   function add(img) {
     stage.appendChild(img);
     slides.push(img);
-    if (slides.length === 1) { stage.classList.add("is-ready"); show(0); }
+  }
+
+  function start() {
+    if (current > -1 || !slides.length) return;
+    stage.classList.add("is-ready");
+    show(CONFIG.random ? nextRandom() : 0);   // anche la prima foto è casuale
     if (!open) play();
   }
 
   /* Auto-rilevamento: carica 001, 002, 003 … finché non trova un buco.
-     Le prime 8 vengono caricate subito, le altre a blocchi in background. */
+     Parte appena è pronto il primo blocco da 8, le altre arrivano in background. */
   async function loadAll() {
     const BATCH = 8;
     let i = 1;
-    const found = [];
     while (i <= CONFIG.maxImages) {
       const batch = [];
       for (let k = 0; k < BATCH && i <= CONFIG.maxImages; k++, i++) batch.push(load(i));
@@ -341,16 +368,11 @@
       let end = false;
       for (const img of imgs) {
         if (!img) { end = true; break; }
-        if (CONFIG.shuffle) found.push(img); else add(img);
+        add(img);
       }
+      start();
+      if (!open && slides.length > 1) play();
       if (end) break;
-    }
-    if (CONFIG.shuffle) {
-      for (let j = found.length - 1; j > 0; j--) {
-        const r = Math.floor(Math.random() * (j + 1));
-        [found[j], found[r]] = [found[r], found[j]];
-      }
-      found.forEach(add);
     }
   }
 
