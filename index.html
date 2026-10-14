@@ -66,16 +66,12 @@
                                   Se metti es. 0.3s, testo e blur sfumano insieme, sincronizzati */
   }
 
-  /* Il blur è applicato al contenitore, che è sempre un livello pronto (will-change):
-     così non c'è il fotogramma di ritardo che il browser impiega a calcolarlo la prima volta */
   .stage {
     position: fixed;
     inset: 0;
     z-index: 0;
     background: #fff;
     overflow: hidden;
-    will-change: filter;
-    transition: filter var(--glass-speed) ease, inset var(--glass-speed) ease;
   }
   .stage img {
     position: absolute;
@@ -90,25 +86,27 @@
   }
   .stage img.is-current { visibility: visible; }
 
-  /* velo "frosted" sopra l'immagine */
-  .stage::before {
-    content: "";
-    position: absolute;
+  /* Lastra di vetro sopra l'immagine (backdrop-filter).
+     Ai bordi ripete i pixel dell'immagine invece di pescare il bianco della pagina:
+     niente alone chiaro ai margini, nemmeno su Safari iPhone.
+     Compare nello stesso istante del testo. */
+  .glass {
+    position: fixed;
     inset: 0;
-    z-index: 1;
-    background: rgba(255, 255, 255, var(--glass-frost));
-    opacity: 0;
-    transition: opacity var(--glass-speed) ease;
+    z-index: 0;
     pointer-events: none;
+    background: rgba(255, 255, 255, var(--glass-frost));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--glass-speed) ease, visibility 0s linear var(--glass-speed);
   }
-
-  /* aperto: immagine ferma e sfocata. Il contenitore si allarga oltre lo schermo
-     di 2× il blur su ogni lato, così la sfocatura non schiarisce mai i bordi */
-  body.is-open .stage {
-    inset: calc(-2 * var(--glass-blur));
-    filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  body.is-open .glass {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--glass-speed) ease, visibility 0s linear 0s;
   }
-  body.is-open .stage::before { opacity: 1; }
 
   /* ---------- layer testo ----------
      Colore unico per testo e logo, senza effetti di fusione.
@@ -188,8 +186,12 @@
      MOBILE / TABLET — frame Figma 393 × 1553
      ====================================================== */
   @media (max-width: 1023.98px) {
-    .h-name    { top: 11px; left: calc(20% + 9.4px); line-height: normal; }
-    .h-tagline { top: calc(11px + 1.5em); left: calc(20% + 9.4px); line-height: normal; }
+    /* intestazione + footer (©2026 e logo): stessa colonna, sempre allineati tra loro.
+       Figma: 20% + 9.4px → spostata a sinistra del 15% (× 0.85) */
+    .page { --m-head-left: calc((20% + 9.4px) * 0.85); }
+
+    .h-name    { top: 11px; left: var(--m-head-left); line-height: normal; }
+    .h-tagline { top: calc(11px + 1.5em); left: var(--m-head-left); line-height: normal; }
 
     /* allineato a sinistra con SERVICES (a 393px coincide con il Figma: 15px);
        non supera i 417px (Figma 363px +15%) e non esce mai dal margine destro */
@@ -208,8 +210,8 @@
 
     /* ©2026 + logo ancorati al fondo: da chiuso stanno in basso nello schermo,
        da aperto finiscono sotto ai contatti (top 1080 / 1104 come in Figma) */
-    .h-year { left: calc(20% + 9.4px); bottom: 51px; line-height: normal; }
-    .logo   { left: calc(20% + 9.4px); bottom: 20px; width: 55px; height: 21px; }
+    .h-year { left: var(--m-head-left); bottom: 51px; line-height: normal; }
+    .logo   { left: var(--m-head-left); bottom: 20px; width: 55px; height: 21px; }
 
     body.is-open .page { height: max(100svh, 1145px); }
   }
@@ -235,6 +237,7 @@
 <body>
   <!-- Le immagini vengono iniettate qui dallo script -->
   <div class="stage" id="stage" aria-hidden="true"></div>
+  <div class="glass" aria-hidden="true"></div>
 
   <main class="page" id="page">
     <!-- sempre visibili -->
@@ -289,7 +292,9 @@
       <p>CONTACTS</p>
       <span class="gap"></span>
       <ul>
+        <li>WWW</li>
         <li>IG</li>
+        <li>T</li>
         <li>M</li>
         <li>&nbsp;</li>
         <li>(IT)</li>
@@ -297,7 +302,9 @@
     </div>
 
     <ul class="t contacts-val info">
+      <li><a href="https://genera.live" target="_blank" rel="noopener">genera.live</a></li>
       <li><a href="https://www.instagram.com/genera.live" target="_blank" rel="noopener">@genera.live</a></li>
+      <li><a href="tel:+393404921189">+39 340 4921189</a></li>
       <li><a href="mailto:info@genera.live">info@genera.live</a></li>
       <li>&nbsp;</li>
       <li><a href="https://maps.google.com/?q=Via+Malaga+4,+Milano" target="_blank" rel="noopener">via Malaga 4, Milan</a></li>
@@ -333,7 +340,7 @@
     pad: 3,                   // 001, 002, 003 …
     ext: ".webp",
     maxImages: 999,           // limite di sicurezza per l'auto-rilevamento
-    interval: 200,            // ms per immagine (≈ 7 al secondo)
+    interval: 140,            // ms per immagine (≈ 7 al secondo)
     reducedMotionInterval: 1200, // per chi ha "riduci movimento" attivo
     random: true              // true = ordine casuale (ogni foto esce una volta per giro, mai due uguali di fila)
   };
