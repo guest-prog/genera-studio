@@ -38,7 +38,7 @@
   body {
     font-family: "BDO Grotesk Local", "BDO Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 600;
-    font-size: 10px;
+    font-size: 11px;               /* Figma: 10px, +1 su richiesta */
     line-height: 1.5;
     letter-spacing: -0.11px;
     -webkit-font-smoothing: antialiased;
@@ -59,9 +59,9 @@
   /* ---------- slideshow ---------- */
   :root {
     /* effetto vetro quando il testo è aperto — regola qui */
-    --glass-blur: 24px;        /* quanto sfoca l'immagine */
-    --glass-frost: 0.12;       /* velo bianco sopra (0 = nessuno, 0.3 = molto lattiginoso) */
-    --glass-saturate: 1.2;     /* colori leggermente più vivi, tipico del vetro */
+    --glass-blur: 14px;        /* quanto sfoca l'immagine */
+    --glass-frost: 0.08;       /* velo bianco sopra (0 = nessuno, 0.3 = molto lattiginoso) */
+    --glass-saturate: 1.1;     /* colori leggermente più vivi, tipico del vetro */
     --glass-speed: 0.5s;       /* durata della transizione */
   }
 
@@ -103,7 +103,7 @@
      (lo scale evita che il blur mostri i bordi bianchi ai lati) */
   body.is-open .stage img.is-current {
     filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    transform: scale(1.12);
+    transform: scale(1.06);
   }
   body.is-open .stage::before { opacity: 1; }
 
@@ -121,7 +121,7 @@
   }
 
   .t { position: absolute; white-space: nowrap; }
-  .gap { display: block; height: 30px; }   /* le due righe vuote sotto ai titoli (2 × 15px) */
+  .gap { display: block; height: 3em; }    /* le due righe vuote sotto ai titoli (2 × 1.5em) */
 
   .info { visibility: hidden; }
   body.is-open .info { visibility: visible; }
@@ -138,16 +138,18 @@
     .h-tagline { top: 11px; left: calc(50% + 8px);    line-height: normal; }
     .h-year    { top: 11px; left: calc(87.5% + 2px);  line-height: normal; }
 
+    /* larghezza max 546px, ma si ferma sempre 30px prima di SERVICES */
     .about {
       top: 65px;
       left: 15px;
-      width: min(546px, calc(50% - 30px));
+      width: min(546px, calc(56.25% - 86.5px - 45px));
       white-space: normal;
     }
-    .services     { top: 65px;   left: calc(56.25% - 86.5px); }
-    .clients      { top: 65px;   left: calc(68.75% - 88.5px); }
-    .contacts-lbl { top: 65.5px; left: calc(81.25% - 90.5px); }
-    .contacts-val { top: 110px;  left: calc(81.25% - 26.5px); }
+    .services     { top: 65px; left: calc(56.25% - 86.5px); }
+    .clients      { top: 65px; left: calc(68.75% - 88.5px); }
+    .contacts-lbl { top: 65px; left: calc(81.25% - 90.5px); }
+    /* allineato alla riga WWW (3 righe sotto CONTACTS) a qualsiasi dimensione testo */
+    .contacts-val { top: calc(65px + 4.5em); left: calc(81.25% - 26.5px); }
 
     .logo { left: calc(12.5% + 13px); bottom: 20px; width: 50px; height: 19px; }
   }
@@ -157,18 +159,22 @@
      ====================================================== */
   @media (max-width: 1023.98px) {
     .h-name    { top: 11px; left: calc(20% + 9.4px); line-height: normal; }
-    .h-tagline { top: 26px; left: calc(20% + 9.4px); line-height: normal; }
+    .h-tagline { top: calc(11px + 1.5em); left: calc(20% + 9.4px); line-height: normal; }
 
+    /* allineato a sinistra con SERVICES (a 393px coincide con il Figma: 15px);
+       non supera i 363px e non esce mai dal margine destro */
     .about {
       top: 89px;
-      left: calc(50% - 181.5px);
-      width: 363px;
+      left: calc(10% - 24.3px);
+      width: min(363px, calc(100% - 2 * (10% - 24.3px)));
       white-space: normal;
     }
-    .services     { top: 404px; left: calc(10% - 24.3px); width: 94px; white-space: normal; }
+    /* spaziature verticali in em: crescono insieme al testo, mantenendo le proporzioni del Figma
+       (a 10px danno esattamente 404 / 783 / 828) */
+    .services     { top: 404px; left: calc(10% - 24.3px); width: 9.4em; white-space: normal; }
     .clients      { top: 404px; left: calc(50% - 36.5px); }
-    .contacts-lbl { top: 783px; left: calc(50% - 36.5px); }
-    .contacts-val { top: 828px; left: calc(70% - 65.1px); }
+    .contacts-lbl { top: calc(404px + 37.9em); left: calc(50% - 36.5px); }
+    .contacts-val { top: calc(404px + 42.4em); left: calc(70% - 65.1px); }
 
     /* ©2026 + logo ancorati al fondo: da chiuso stanno in basso nello schermo,
        da aperto finiscono sotto ai contatti (top 1080 / 1104 come in Figma) */
@@ -176,11 +182,6 @@
     .logo   { left: calc(20% + 9.4px); bottom: 20px; width: 55px; height: 21px; }
 
     body.is-open .page { height: max(100svh, 1145px); }
-  }
-
-  /* schermi molto stretti: il paragrafo non deve uscire dai bordi */
-  @media (max-width: 392px) {
-    .about { left: 15px; width: calc(100% - 30px); }
   }
 
   /* ---------- preloader minimale ---------- */
@@ -258,7 +259,9 @@
       <p>CONTACTS</p>
       <span class="gap"></span>
       <ul>
+        <li>WWW</li>
         <li>IG</li>
+        <li>T</li>
         <li>M</li>
         <li>&nbsp;</li>
         <li>(IT)</li>
@@ -266,7 +269,9 @@
     </div>
 
     <ul class="t contacts-val info">
+      <li><a href="https://genera.live" target="_blank" rel="noopener">genera.live</a></li>
       <li><a href="https://www.instagram.com/genera.live" target="_blank" rel="noopener">@genera.live</a></li>
+      <li><a href="tel:+393404921189">+39 340 4921189</a></li>
       <li><a href="mailto:info@genera.live">info@genera.live</a></li>
       <li>&nbsp;</li>
       <li><a href="https://maps.google.com/?q=Via+Malaga+4,+Milano" target="_blank" rel="noopener">via Malaga 4, Milan</a></li>
