@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GENERA Creative Studio + Production House</title>
+<title>GENERA</title>
 <meta name="description" content="Genera is a creative studio reframing contemporary visual languages by combining emerging tools, cross-media practices, and a critical sensitivity to cultural context.">
 
 <!-- Favicon (file nella stessa cartella di index.html) -->
@@ -62,15 +62,20 @@
     --glass-blur: 14px;        /* quanto sfoca l'immagine */
     --glass-frost: 0.08;       /* velo bianco sopra (0 = nessuno, 0.3 = molto lattiginoso) */
     --glass-saturate: 1.1;     /* colori leggermente più vivi, tipico del vetro */
-    --glass-speed: 0.5s;       /* durata della transizione */
+    --glass-speed: 0s;         /* 0s = blur e testo compaiono nello stesso istante.
+                                  Se metti es. 0.3s, testo e blur sfumano insieme, sincronizzati */
   }
 
+  /* Il blur è applicato al contenitore, che è sempre un livello pronto (will-change):
+     così non c'è il fotogramma di ritardo che il browser impiega a calcolarlo la prima volta */
   .stage {
     position: fixed;
     inset: 0;
     z-index: 0;
     background: #fff;
     overflow: hidden;
+    will-change: filter;
+    transition: filter var(--glass-speed) ease, inset var(--glass-speed) ease;
   }
   .stage img {
     position: absolute;
@@ -82,8 +87,6 @@
     visibility: hidden;
     pointer-events: none;
     -webkit-user-drag: none;
-    transform: scale(1);
-    transition: filter var(--glass-speed) ease, transform var(--glass-speed) ease;
   }
   .stage img.is-current { visibility: visible; }
 
@@ -99,32 +102,42 @@
     pointer-events: none;
   }
 
-  /* aperto: immagine ferma, sfocata e leggermente ingrandita
-     (lo scale evita che il blur mostri i bordi bianchi ai lati) */
-  body.is-open .stage img.is-current {
+  /* aperto: immagine ferma e sfocata. Il contenitore si allarga oltre lo schermo
+     di 2× il blur su ogni lato, così la sfocatura non schiarisce mai i bordi */
+  body.is-open .stage {
+    inset: calc(-2 * var(--glass-blur));
     filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    transform: scale(1.06);
   }
   body.is-open .stage::before { opacity: 1; }
 
   /* ---------- layer testo ----------
-     Tutto il testo è bianco in mix-blend-mode: difference:
-     sul fondo bianco risulta nero (come in Figma), sopra le immagini si inverte. */
+     Colore unico per testo e logo, senza effetti di fusione.
+     #666666 = nero al 60% (come colore pieno, non trasparente) */
+  :root { --text-color: #666666; }
+
   .page {
     position: relative;
     z-index: 1;
     width: 100%;
     height: 100vh;
     height: 100svh;
-    color: #fff;
-    mix-blend-mode: difference;
+    color: var(--text-color);
   }
 
   .t { position: absolute; white-space: nowrap; }
   .gap { display: block; height: 3em; }    /* le due righe vuote sotto ai titoli (2 × 1.5em) */
 
-  .info { visibility: hidden; }
-  body.is-open .info { visibility: visible; }
+  /* il testo segue esattamente la stessa durata del blur (--glass-speed) */
+  .info {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--glass-speed) ease, visibility 0s linear var(--glass-speed);
+  }
+  body.is-open .info {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--glass-speed) ease, visibility 0s linear 0s;
+  }
 
   .logo { position: absolute; display: block; }
   .logo svg { display: block; width: 100%; height: 100%; }
@@ -154,6 +167,23 @@
     .logo { left: calc(12.5% + 13px); bottom: 20px; width: 50px; height: 19px; }
   }
 
+  /* DESKTOP RIDOTTO (sotto un 13", 1024–1279px):
+     il paragrafo è il 15% più largo; SERVICES / CLIENTS / CONTACTS si spostano a destra
+     mantenendo tra loro le stesse distanze del Figma (12.5% − 2px) e 30px di aria dal paragrafo */
+  @media (min-width: 1024px) and (max-width: 1279.98px) {
+    .page {
+      --about-w: calc(1.15 * min(546px, calc(56.25% - 131.5px)));
+      --col-1: calc(15px + var(--about-w) + 30px);   /* SERVICES */
+      --col-step: calc(12.5% - 2px);
+    }
+    .about        { width: var(--about-w); }
+    .h-tagline    { left: var(--col-1); }
+    .services     { left: var(--col-1); }
+    .clients      { left: calc(var(--col-1) + var(--col-step)); }
+    .contacts-lbl { left: calc(var(--col-1) + 2 * var(--col-step)); }
+    .contacts-val { left: calc(var(--col-1) + 2 * var(--col-step) + 64px); }
+  }
+
   /* ======================================================
      MOBILE / TABLET — frame Figma 393 × 1553
      ====================================================== */
@@ -162,11 +192,11 @@
     .h-tagline { top: calc(11px + 1.5em); left: calc(20% + 9.4px); line-height: normal; }
 
     /* allineato a sinistra con SERVICES (a 393px coincide con il Figma: 15px);
-       non supera i 363px e non esce mai dal margine destro */
+       non supera i 417px (Figma 363px +15%) e non esce mai dal margine destro */
     .about {
       top: 89px;
       left: calc(10% - 24.3px);
-      width: min(363px, calc(100% - 2 * (10% - 24.3px)));
+      width: min(417px, calc(100% - 2 * (10% - 24.3px)));   /* Figma 363px +15% */
       white-space: normal;
     }
     /* spaziature verticali in em: crescono insieme al testo, mantenendo le proporzioni del Figma
@@ -290,7 +320,7 @@
             <rect x="0"    y="241" width="1402" height="4"   fill="#000"/>
           </mask>
         </defs>
-        <rect width="1402" height="498" fill="#fff" mask="url(#genera-g)"/>
+        <rect width="1402" height="498" fill="currentColor" mask="url(#genera-g)"/>
       </svg>
     </span>
   </main>
