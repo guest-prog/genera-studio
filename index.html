@@ -57,6 +57,14 @@
   ul { list-style: none; }
 
   /* ---------- slideshow ---------- */
+  :root {
+    /* effetto vetro quando il testo è aperto — regola qui */
+    --glass-blur: 28px;        /* quanto sfoca l'immagine */
+    --glass-frost: 0.14;       /* velo bianco sopra (0 = nessuno, 0.3 = molto lattiginoso) */
+    --glass-saturate: 1.2;     /* colori leggermente più vivi, tipico del vetro */
+    --glass-speed: 0.5s;       /* durata della transizione */
+  }
+
   .stage {
     position: fixed;
     inset: 0;
@@ -74,8 +82,30 @@
     visibility: hidden;
     pointer-events: none;
     -webkit-user-drag: none;
+    transform: scale(1);
+    transition: filter var(--glass-speed) ease, transform var(--glass-speed) ease;
   }
   .stage img.is-current { visibility: visible; }
+
+  /* velo "frosted" sopra l'immagine */
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, var(--glass-frost));
+    opacity: 0;
+    transition: opacity var(--glass-speed) ease;
+    pointer-events: none;
+  }
+
+  /* aperto: immagine ferma, sfocata e leggermente ingrandita
+     (lo scale evita che il blur mostri i bordi bianchi ai lati) */
+  body.is-open .stage img.is-current {
+    filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    transform: scale(1.12);
+  }
+  body.is-open .stage::before { opacity: 1; }
 
   /* ---------- layer testo ----------
      Tutto il testo è bianco in mix-blend-mode: difference:
@@ -228,7 +258,9 @@
       <p>CONTACTS</p>
       <span class="gap"></span>
       <ul>
+        <li>WWW</li>
         <li>IG</li>
+        <li>T</li>
         <li>M</li>
         <li>&nbsp;</li>
         <li>(IT)</li>
@@ -236,7 +268,9 @@
     </div>
 
     <ul class="t contacts-val info">
+      <li><a href="https://genera.live" target="_blank" rel="noopener">genera.live</a></li>
       <li><a href="https://www.instagram.com/genera.live" target="_blank" rel="noopener">@genera.live</a></li>
+      <li><a href="tel:+393404921189">+39 340 4921189</a></li>
       <li><a href="mailto:info@genera.live">info@genera.live</a></li>
       <li>&nbsp;</li>
       <li><a href="https://maps.google.com/?q=Via+Malaga+4,+Milano" target="_blank" rel="noopener">via Malaga 4, Milan</a></li>
@@ -272,7 +306,7 @@
     pad: 3,                   // 001, 002, 003 …
     ext: ".webp",
     maxImages: 999,           // limite di sicurezza per l'auto-rilevamento
-    interval: 235,            // ms per immagine (≈ 7 al secondo)
+    interval: 140,            // ms per immagine (≈ 7 al secondo)
     reducedMotionInterval: 1200, // per chi ha "riduci movimento" attivo
     random: true              // true = ordine casuale (ogni foto esce una volta per giro, mai due uguali di fila)
   };
